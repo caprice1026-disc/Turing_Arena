@@ -3,6 +3,7 @@
 版: 1.0
 作成日: 2026-02-18（JST）
 想定スタック: Python / Django / Django ORM / MySQL（Cloud SQL）/ Cloud Run / LangChain（任意） / Openrouter（外部LLM連携） / その他必要に応じて
+
 外部LLM: OpenAI系 / Anthropic系 / Google系（管理者が作問時にのみ利用）
 
 ---
