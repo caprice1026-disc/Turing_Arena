@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}フェーズ1結果{% endblock %}
+{% block content %}
+<h1>フェーズ1結果</h1>
+<p>
+  {% if session_question.phase1_is_correct %}
+    正解です。
+  {% else %}
+    不正解です。
+  {% endif %}
+</p>
+<p>累計(セッション内): {{ stats.correct }}/{{ stats.total }} ({{ stats.rate|floatformat:1 }}%)</p>
+<p>streak: {{ stats.streak }}</p>
+{% if human_letter %}
+  <p>正解の選択肢: {{ human_letter }}</p>
+{% endif %}
+<a class="btn" href="{{ next_url }}">次へ</a>
+{% endblock %}

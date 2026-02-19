@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}在庫切れ{% endblock %}
+{% block content %}
+<h1>問題在庫切れ</h1>
+<p>条件: difficulty={{ difficulty }}, choice_count={{ choice_count }}, num_questions={{ num_questions }}</p>
+<p>確保可能数: {{ available_count }}</p>
+{% if available_count > 0 %}
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="difficulty" value="{{ difficulty }}">
+    <input type="hidden" name="choice_count" value="{{ choice_count }}">
+    <input type="hidden" name="num_questions" value="{{ num_questions }}">
+    <input type="hidden" name="available_count" value="{{ available_count }}">
+    <button class="btn" type="submit">{{ available_count }}問で開始する</button>
+  </form>
+{% endif %}
+<a class="btn btn-secondary" href="{% url 'quiz-start' %}">条件を変更する</a>
+{% endblock %}

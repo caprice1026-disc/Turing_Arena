@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}ユーザー管理{% endblock %}
+{% block content %}
+<h1>ユーザー管理</h1>
+<table>
+  <thead>
+    <tr><th>ID</th><th>login_id</th><th>email</th><th>is_active</th><th>操作</th></tr>
+  </thead>
+  <tbody>
+    {% for user_item in users %}
+      <tr>
+        <td>{{ user_item.id }}</td>
+        <td>{{ user_item.login_id }}</td>
+        <td>{{ user_item.email }}</td>
+        <td>{{ user_item.is_active }}</td>
+        <td>
+          <form method="post" action="{% url 'admin-force-password-reset' user_item.id %}">
+            {% csrf_token %}
+            {{ reset_form.new_password }}
+            <button class="btn" type="submit">強制PWリセット</button>
+          </form>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5">ユーザーなし</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

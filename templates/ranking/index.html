@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}ランキング{% endblock %}
+{% block content %}
+<h1>ランキング</h1>
+<h2>フェーズ1（人間当て）</h2>
+<table>
+  <thead><tr><th>ユーザー</th><th>正答率</th><th>正答/回答</th></tr></thead>
+  <tbody>
+    {% for row in phase1_ranking %}
+      <tr>
+        <td>{{ row.user.login_id }}</td>
+        <td>{{ row.rate|floatformat:1 }}%</td>
+        <td>{{ row.correct }}/{{ row.total }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="3">掲載対象なし</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<h2>フェーズ2（モデル当て）</h2>
+<table>
+  <thead><tr><th>ユーザー</th><th>点率</th><th>得点/問題</th></tr></thead>
+  <tbody>
+    {% for row in phase2_ranking %}
+      <tr>
+        <td>{{ row.user.login_id }}</td>
+        <td>{{ row.rate|floatformat:1 }}%</td>
+        <td>{{ row.points }}/{{ row.total }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="3">掲載対象なし</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

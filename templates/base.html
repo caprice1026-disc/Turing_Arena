@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Turing Arena{% endblock %}</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; background: #f8f8f5; color: #222; }
+    header { background: #13293d; color: #fff; padding: 12px 20px; }
+    nav a { color: #fff; margin-right: 12px; text-decoration: none; }
+    main { max-width: 960px; margin: 24px auto; background: #fff; padding: 20px; border-radius: 8px; }
+    .messages { margin: 8px 0; padding: 0; list-style: none; }
+    .messages li { padding: 8px 10px; margin: 6px 0; background: #eef4ff; border-radius: 6px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    .btn { display: inline-block; padding: 8px 12px; background: #13293d; color: #fff; border: none; border-radius: 6px; text-decoration: none; cursor: pointer; }
+    .btn-secondary { background: #555; }
+    .card { border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+    .muted { color: #777; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="{% url 'home' %}">トップ</a>
+      <a href="{% url 'ranking' %}">ランキング</a>
+      <a href="{% url 'transparency' %}">透明性</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'quiz-start' %}">クイズ開始</a>
+      {% endif %}
+      {% if user.is_staff %}
+        <a href="{% url 'admin-dashboard' %}">管理ダッシュボード</a>
+      {% endif %}
+      {% if user.is_authenticated %}
+        <a href="{% url 'logout' %}">ログアウト</a>
+      {% else %}
+        <a href="{% url 'login' %}">ログイン</a>
+        <a href="{% url 'signup' %}">新規登録</a>
+      {% endif %}
+    </nav>
+  </header>
+  <main>
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

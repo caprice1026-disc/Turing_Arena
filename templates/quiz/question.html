@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}フェーズ1{% endblock %}
+{% block content %}
+<h1>フェーズ1: どれが人間の返答？</h1>
+<div class="card">
+  <p><strong>人間メッセージ</strong></p>
+  <p>{{ scenario.user_message_text }}</p>
+</div>
+<form method="post" id="phase1-form">
+  {% csrf_token %}
+  {% for letter, option in letter_option_map.items %}
+    <div class="card">
+      <label>
+        <input type="radio" name="selected_letter" value="{{ letter }}" required>
+        <strong>{{ letter }}</strong> - {{ option.content_text }}
+      </label>
+    </div>
+  {% endfor %}
+  <input type="hidden" name="phase1_time_ms" id="phase1-time-ms">
+  <button class="btn" type="submit">回答する</button>
+</form>
+<script>
+  (() => {
+    const started = Date.now();
+    document.getElementById("phase1-form").addEventListener("submit", () => {
+      document.getElementById("phase1-time-ms").value = Date.now() - started;
+    });
+  })();
+</script>
+{% endblock %}

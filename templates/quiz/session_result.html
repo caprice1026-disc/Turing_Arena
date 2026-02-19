@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}セッション結果{% endblock %}
+{% block content %}
+<h1>セッション結果</h1>
+<h2>このセッション</h2>
+<p>フェーズ1: {{ phase1_correct }}/{{ phase1_total }} ({{ phase1_rate|floatformat:1 }}%)</p>
+{% if session.choice_count == 4 %}
+  <p>フェーズ2: {{ phase2_sum }}/{{ phase2_max_points }} ({{ phase2_rate|floatformat:1 }}%)</p>
+  <p>完全一致回数: {{ phase2_perfect }}</p>
+{% endif %}
+<h2>全体累計</h2>
+<p>フェーズ1: {{ total_phase1_correct }}/{{ total_phase1_count }}</p>
+<p>フェーズ2: {{ total_phase2_points }} 点 / {{ total_phase2_count }} 問</p>
+<a class="btn" href="{% url 'ranking' %}">ランキングを見る</a>
+<a class="btn btn-secondary" href="{% url 'quiz-start' %}">もう一回挑戦</a>
+{% endblock %}

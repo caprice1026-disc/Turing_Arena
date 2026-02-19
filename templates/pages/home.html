@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}トップ | Turing Arena{% endblock %}
+{% block content %}
+<h1>生成AI判別クイズ</h1>
+<p>フェーズ1で人間の返答を当て、4択時はフェーズ2でモデル系統を割り当てます。</p>
+{% if user.is_authenticated %}
+  <a class="btn" href="{% url 'quiz-start' %}">クイズを始める</a>
+{% else %}
+  <a class="btn" href="{% url 'login' %}">ログインして始める</a>
+{% endif %}
+{% endblock %}

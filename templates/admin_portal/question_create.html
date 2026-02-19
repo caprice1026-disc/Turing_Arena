@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}問題作成{% endblock %}
+{% block content %}
+<h1>問題作成ウィザード</h1>
+<p class="muted">Step1: シナリオ / Step2: 生成設定 / Step3: 生成 / Step4: 公開を1画面で実行します。</p>
+<p class="muted">ジャンル一覧: {% for g in genres %}[{{ g.id }}]{{ g.name }} {% endfor %}</p>
+<p class="muted">タグ一覧: {% for t in tags %}[{{ t.id }}]{{ t.name }} {% endfor %}</p>
+<p class="muted">制約テンプレ一覧: {% for p in profiles %}[{{ p.id }}]{{ p.name }} {% empty %}(なし){% endfor %}</p>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button class="btn" type="submit">作成して生成する</button>
+</form>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}管理ダッシュボード{% endblock %}
+{% block content %}
+<h1>管理ダッシュボード</h1>
+<p>公開中問題数: {{ published_count }}</p>
+<p>下書き問題数: {{ draft_count }}</p>
+<h2>在庫</h2>
+<table>
+  <thead>
+    <tr><th>難易度</th><th>形式</th><th>件数</th></tr>
+  </thead>
+  <tbody>
+    {% for row in stock_by_difficulty %}
+      <tr><td>{{ row.difficulty }}</td><td>{{ row.choice_count }}</td><td>{{ row.count }}</td></tr>
+    {% empty %}
+      <tr><td colspan="3">データなし</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p>
+  <a class="btn" href="{% url 'admin-question-create' %}">問題作成</a>
+  <a class="btn btn-secondary" href="{% url 'admin-question-list' %}">問題一覧</a>
+  <a class="btn btn-secondary" href="{% url 'admin-user-list' %}">ユーザー管理</a>
+</p>
+{% endblock %}

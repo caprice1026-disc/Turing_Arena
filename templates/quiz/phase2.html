@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}フェーズ2{% endblock %}
+{% block content %}
+<h1>フェーズ2: 利きモデル（4択）</h1>
+<p>フェーズ1の正解（人間）を明示します。人間カードは操作できません。</p>
+{% if error %}<p style="color:#b00020">{{ error }}</p>{% endif %}
+<form method="post" id="phase2-form">
+  {% csrf_token %}
+  {% for row in phase2_rows %}
+    <div class="card" {% if row.is_human %}style="background:#f0f0f0"{% endif %}>
+      <p><strong>{{ row.letter }}</strong> - {{ row.option.content_text }}</p>
+      {% if row.is_human %}
+        <p class="muted">この選択肢は人間の返答です（ロック）</p>
+      {% else %}
+        <label>モデル系統</label>
+        {{ row.field }}
+      {% endif %}
+    </div>
+  {% endfor %}
+  <input type="hidden" name="phase2_time_ms" id="phase2-time-ms">
+  <button class="btn" type="submit">フェーズ2を確定</button>
+</form>
+<script>
+  (() => {
+    const started = Date.now();
+    const form = document.getElementById("phase2-form");
+    const selects = Array.from(form.querySelectorAll("select"));
+    function updateDisabled() {
+      const selected = selects.map(s => s.value).filter(Boolean);
+      selects.forEach(select => {
+        const current = select.value;
+        Array.from(select.options).forEach(opt => {
+          if (!opt.value) return;
+          opt.disabled = selected.includes(opt.value) && opt.value !== current;
+        });
+      });
+    }
+    selects.forEach(select => select.addEventListener("change", updateDisabled));
+    updateDisabled();
+    form.addEventListener("submit", () => {
+      document.getElementById("phase2-time-ms").value = Date.now() - started;
+    });
+  })();
+</script>
+{% endblock %}

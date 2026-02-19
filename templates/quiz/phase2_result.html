@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}フェーズ2結果{% endblock %}
+{% block content %}
+<h1>フェーズ2結果</h1>
+<p>得点: {{ session_question.phase2_score }}/3</p>
+<p>
+  {% if session_question.phase2_is_perfect %}
+    完全一致ボーナス: あり
+  {% else %}
+    完全一致ボーナス: なし
+  {% endif %}
+</p>
+{% for detail in details %}
+  <div class="card">
+    <p>{{ detail.option.content_text }}</p>
+    <p>あなた: {{ detail.assigned_group }} / 正解: {{ detail.correct_group }}</p>
+    <p>{% if detail.is_correct %}正解{% else %}不正解{% endif %}</p>
+  </div>
+{% endfor %}
+<a class="btn" href="{{ next_url }}">次へ</a>
+{% endblock %}
