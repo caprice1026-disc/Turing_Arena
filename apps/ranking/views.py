@@ -17,7 +17,7 @@ def ranking_view(request):
             correct=Count("id", filter=Q(phase1_is_correct=True)),
         )
         .filter(total__gte=settings.RANKING_MIN_PHASE1)
-        .order_by("-correct", "-total")
+        .order_by("-total", "-correct")
     )
 
     phase2_rows = (
@@ -40,6 +40,9 @@ def ranking_view(request):
             continue
         rate = row["correct"] / row["total"] * 100 if row["total"] else 0
         phase1_ranking.append({"user": user, "rate": rate, **row})
+    phase1_ranking.sort(
+        key=lambda row: (-row["rate"], -row["total"], -row["correct"], row["user"].id)
+    )
 
     phase2_ranking = []
     for row in phase2_rows:

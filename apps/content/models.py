@@ -129,6 +129,14 @@ class Question(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(choice_count__in=[2, 4]),
+                name="question_choice_count_2_or_4",
+            )
+        ]
+
     def clean(self):
         if self.choice_count not in (2, 4):
             raise ValidationError("choice_count must be 2 or 4.")
@@ -171,6 +179,17 @@ class Option(models.Model):
     error_message = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    models.Q(author_type="human", llm_model__isnull=True)
+                    | models.Q(author_type="ai", llm_model__isnull=False)
+                ),
+                name="option_author_type_llm_model_match",
+            )
+        ]
 
     def clean(self):
         if self.author_type == self.AuthorType.HUMAN and self.llm_model_id:

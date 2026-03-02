@@ -1,5 +1,7 @@
 import pytest
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError, transaction
+from django.test import override_settings
 from django.utils import timezone
 from uuid import uuid4
 
@@ -406,3 +408,112 @@ def test_admin_question_list_page_renders(client):
     response = client.get("/admin/questions")
     assert response.status_code == 200
     assert "問題一覧" in response.content.decode("utf-8")
+
+
+@pytest.mark.django_db
+def test_question_choice_count_is_guarded_by_db_constraint():
+    admin_user = _create_admin()
+    genre = Genre.objects.create(slug=f"genre-{uuid4().hex[:10]}", name="雑談")
+    scenario = Scenario.objects.create(
+        user_message_text="こんにちは",
+        human_reply_text="やあ",
+        genre=genre,
+        created_by_admin=admin_user,
+    )
+    with pytest.raises(IntegrityError):
+        with transaction.atomic():
+            Question.objects.create(
+                scenario=scenario,
+                status=Question.Status.PUBLISHED,
+                difficulty=Question.Difficulty.EASY,
+                choice_count=3,
+                created_by_admin=admin_user,
+            )
+
+
+@pytest.mark.django_db
+def test_option_author_type_and_llm_model_are_guarded_by_db_constraint():
+    admin_user = _create_admin()
+    model = _create_models()[0]
+    question = _create_question(
+        admin_user=admin_user,
+        difficulty=Question.Difficulty.EASY,
+        choice_count=2,
+        model_set=[model],
+    )
+
+    with pytest.raises(IntegrityError):
+        with transaction.atomic():
+            Option.objects.create(
+                question=question,
+                author_type=Option.AuthorType.HUMAN,
+                llm_model=model,
+                content_text="不正データ",
+                generation_status=Option.GenerationStatus.OK,
+            )
+
+    with pytest.raises(IntegrityError):
+        with transaction.atomic():
+            Option.objects.create(
+                question=question,
+                author_type=Option.AuthorType.AI,
+                llm_model=None,
+                content_text="不正データ",
+                generation_status=Option.GenerationStatus.OK,
+            )
+
+
+@pytest.mark.django_db
+@override_settings(RANKING_MIN_PHASE1=1)
+def test_phase1_ranking_sorts_by_accuracy_first(client):
+    admin_user = _create_admin()
+    high_accuracy_user = _create_user("high-accuracy", "high-accuracy@example.com")
+    low_accuracy_user = _create_user("low-accuracy", "low-accuracy@example.com")
+    model = _create_models()[0]
+    question = _create_question(
+        admin_user=admin_user,
+        difficulty=Question.Difficulty.EASY,
+        choice_count=2,
+        model_set=[model],
+    )
+
+    high_session = QuizSession.objects.create(
+        user=high_accuracy_user,
+        difficulty="easy",
+        choice_count=2,
+        num_questions_requested=1,
+        status=QuizSession.Status.FINISHED,
+    )
+    SessionQuestion.objects.create(
+        session=high_session,
+        question=question,
+        order_index=0,
+        shuffle_map_json={"A": 1, "B": 2},
+        phase1_selected_letter="A",
+        phase1_is_correct=True,
+        phase1_answered_at=timezone.now(),
+    )
+
+    low_results = (True, True, False)
+    for is_correct in low_results:
+        low_session = QuizSession.objects.create(
+            user=low_accuracy_user,
+            difficulty="easy",
+            choice_count=2,
+            num_questions_requested=1,
+            status=QuizSession.Status.FINISHED,
+        )
+        SessionQuestion.objects.create(
+            session=low_session,
+            question=question,
+            order_index=0,
+            shuffle_map_json={"A": 1, "B": 2},
+            phase1_selected_letter="A",
+            phase1_is_correct=is_correct,
+            phase1_answered_at=timezone.now(),
+        )
+
+    response = client.get("/ranking")
+    body = response.content.decode("utf-8")
+    assert response.status_code == 200
+    assert body.index("high-accuracy") < body.index("low-accuracy")
